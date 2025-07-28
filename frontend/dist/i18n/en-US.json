@@ -1,0 +1,52 @@
+{
+  "app": {
+    "title": "NetProbe",
+    "subtitle": "Network Probe Tool"
+  },
+  "connection": {
+    "ip": "IP Address:",
+    "port": "Port:",
+    "protocol": "Protocol:",
+    "dataFormat": "Send Data Format:",
+    "inputData": "Send Data (Optional):",
+    "connect": "Connect",
+    "disconnect": "Disconnect",
+    "newTab": "New Tab"
+  },
+  "formats": {
+    "hexComma": "Hexadecimal (0x)",
+    "hexSlash": "Hexadecimal (\\x)",
+    "rawString": "Raw String"
+  },
+  "examples": {
+    "hexComma": "Example: 0x68,0x65,0x6c,0x6c,0x6f or 68,65,6c,6c,6f",
+    "hexSlash": "Example: \\x68\\x65\\x6c\\x6c\\x6f",
+    "rawString": "Enter raw string directly, e.g. hello"
+  },
+  "results": {
+    "success": "Connection Successful",
+    "failure": "Connection Failed",
+    "error": "Error",
+    "protocol": "Protocol:",
+    "dataFormat": "Send Data Format:",
+    "receiveTime": "Receive Time:",
+    "dataLength": "Data Length:",
+    "hexGo": "Hexadecimal (0x format)",
+    "hexSlash": "Hexadecimal (\\x format)",
+    "decimal": "Decimal",
+    "string": "String",
+    "connecting": "Connecting..."
+  },
+  "tabs": {
+    "untitled": "Untitled",
+    "close": "Close"
+  },
+  "footer": {
+    "copyright": "© 2025 NetProbe - outmansec"
+  },
+  "language": {
+    "name": "Language",
+    "en": "English",
+    "zh": "中文"
+  }
+}

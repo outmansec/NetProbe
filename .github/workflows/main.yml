@@ -1,0 +1,185 @@
+# 工作流名称：构建和发布
+name: Build and Release
+
+# 触发条件
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送 v* 标签时触发（如 v1.0.0）
+  pull_request:
+    branches: [ main ]  # 针对 main 分支的 PR 时触发
+  workflow_dispatch:  # 允许手动触发
+
+# 权限设置
+permissions:
+  contents: write  # 允许创建和更新 releases
+
+jobs:
+  # 构建任务
+  build:
+    strategy:
+      matrix:
+        include:
+          # Windows 64位构建
+          - os: windows-latest
+            goos: windows
+            goarch: amd64
+            ext: .exe
+          # macOS Intel 芯片构建
+          - os: macos-13
+            goos: darwin
+            goarch: amd64
+            ext: ""
+          # macOS Apple Silicon 芯片构建
+          - os: macos-latest
+            goos: darwin
+            goarch: arm64
+            ext: ""
+          # Linux 64位构建
+          - os: ubuntu-latest
+            goos: linux
+            goarch: amd64
+            ext: ""
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    # 检出代码
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 设置 Go 环境
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version-file: 'go.mod'  # 从 go.mod 文件读取 Go 版本
+
+    # 安装 Linux 依赖（仅 Linux 平台）
+    - name: Install Linux dependencies
+      if: matrix.goos == 'linux'
+      run: |
+        sudo apt-get update || true
+        # 安装 GTK 和 WebKit 开发库
+        sudo apt-get install -y build-essential pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev || true
+
+    # 安装 Wails 框架
+    - name: Install Wails
+      run: |
+        go install github.com/wailsapp/wails/v2/cmd/wails@latest
+        wails doctor  # 检查 Wails 环境
+
+    # 构建应用程序
+    - name: Build application
+      shell: bash
+      env:
+        CGO_ENABLED: 1  # 启用 CGO（GUI 应用需要）
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+      run: |
+        echo "正在为 $GOOS/$GOARCH 构建应用..."
+        if [ "$GOOS" = "linux" ]; then
+          # Linux 需要 webkit2_41 标签
+          wails build -platform $GOOS/$GOARCH -tags webkit2_41 -clean
+        else
+          # Windows 和 macOS 使用标准构建
+          wails build -platform $GOOS/$GOARCH -clean
+        fi
+
+    # macOS 简单签名处理
+    - name: Sign macOS app (simple)
+      if: matrix.goos == 'darwin'
+      run: |
+        echo "正在为 macOS 应用进行简单签名..."
+        # 使用临时标识符进行签名，移除隔离属性
+        codesign --force --deep --sign - build/bin/NetProbe.app || true
+        xattr -cr build/bin/NetProbe.app || true
+        echo "macOS 应用签名完成"
+
+    # 上传构建产物
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NetProbe-${{ matrix.goos }}-${{ matrix.goarch }}
+        path: build/bin/  # 上传整个 build/bin 目录
+        if-no-files-found: error
+
+  # 发布任务
+  release:
+    needs: build  # 依赖构建任务完成
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')  # 仅在推送版本标签时执行
+
+    steps:
+    # 检出代码（获取 README 等文件）
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 下载所有构建产物
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ./artifacts  # 下载到 artifacts 目录
+
+    # 验证构建产物结构
+    - name: Verify artifact structure
+      run: |
+        echo "=== 构建产物目录结构 ==="
+        find ./artifacts -type f -o -type d | head -20
+        
+    # 打包并准备发布文件
+    - name: Package and prepare release files
+      run: |
+        mkdir -p ./release
+        
+        # 打包 Windows 版本
+        if [ -d "./artifacts/NetProbe-windows-amd64" ]; then
+          echo "正在打包 Windows 版本..."
+          cd ./artifacts/NetProbe-windows-amd64
+          zip ../../release/NetProbe-windows-amd64.zip NetProbe.exe
+          cd ../..
+        fi
+        
+        # 打包 macOS Intel 版本
+        if [ -d "./artifacts/NetProbe-darwin-amd64" ]; then
+          echo "正在打包 macOS Intel 版本..."
+          cd ./artifacts/NetProbe-darwin-amd64
+          # 设置 .app 内部可执行文件权限
+          chmod +x NetProbe.app/Contents/MacOS/* 2>/dev/null || true
+          # 保留原始名称打包
+          zip -r ../../release/NetProbe-darwin-amd64.zip NetProbe.app
+          cd ../..
+        fi
+        
+        # 打包 macOS Apple Silicon 版本
+        if [ -d "./artifacts/NetProbe-darwin-arm64" ]; then
+          echo "正在打包 macOS Apple Silicon 版本..."
+          cd ./artifacts/NetProbe-darwin-arm64
+          # 设置 .app 内部可执行文件权限
+          chmod +x NetProbe.app/Contents/MacOS/* 2>/dev/null || true
+          # 保留原始名称打包
+          zip -r ../../release/NetProbe-darwin-arm64.zip NetProbe.app
+          cd ../..
+        fi
+        
+        # 打包 Linux 版本
+        if [ -d "./artifacts/NetProbe-linux-amd64" ]; then
+          echo "正在打包 Linux 版本..."
+          cd ./artifacts/NetProbe-linux-amd64
+          # 设置可执行权限
+          chmod +x NetProbe
+          zip ../../release/NetProbe-linux-amd64.zip NetProbe
+          cd ../..
+        fi
+        
+        echo "=== 发布文件列表 ==="
+        ls -la ./release/
+
+    # 创建 GitHub 发布
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ./release/*.zip  # 上传所有 zip 文件
+        draft: false  # 不创建草稿
+        prerelease: false  # 不标记为预发布
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub 访问令牌

@@ -1,0 +1,52 @@
+{
+  "app": {
+    "title": "NetProbe",
+    "subtitle": "网络探测工具"
+  },
+  "connection": {
+    "ip": "IP地址:",
+    "port": "端口:",
+    "protocol": "协议:",
+    "dataFormat": "发送数据格式:",
+    "inputData": "发送数据 (可选):",
+    "connect": "连接",
+    "disconnect": "断开",
+    "newTab": "新标签页"
+  },
+  "formats": {
+    "hexComma": "十六进制 (0x)",
+    "hexSlash": "十六进制 (\\x)",
+    "rawString": "原始字符串"
+  },
+  "examples": {
+    "hexComma": "示例: 0x68,0x65,0x6c,0x6c,0x6f 或 68,65,6c,6c,6f",
+    "hexSlash": "示例: \\x68\\x65\\x6c\\x6c\\x6f",
+    "rawString": "直接输入原始字符串，如 hello"
+  },
+  "results": {
+    "success": "连接成功",
+    "failure": "连接失败",
+    "error": "错误",
+    "protocol": "协议:",
+    "dataFormat": "发送数据格式:",
+    "receiveTime": "接收时间:",
+    "dataLength": "接收数据长度:",
+    "hexGo": "十六进制 (0x格式)",
+    "hexSlash": "十六进制 (\\x格式)",
+    "decimal": "十进制",
+    "string": "字符串",
+    "connecting": "正在连接..."
+  },
+  "tabs": {
+    "untitled": "未命名",
+    "close": "关闭"
+  },
+  "footer": {
+    "copyright": "© 2025 NetProbe - outmansec"
+  },
+  "language": {
+    "name": "语言",
+    "en": "English",
+    "zh": "中文"
+  }
+}

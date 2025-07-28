@@ -1,0 +1,23 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "NetProbe",
+  "outputfilename": "NetProbe",
+  "frontend:install": "",
+  "frontend:build": "",
+  "frontend:dev:watcher": "",
+  "frontend:dev:serverUrl": "",
+  "author": {
+    "name": "",
+    "email": ""
+  },
+  "info": {
+    "companyName": "",
+    "productName": "NetProbe",
+    "productVersion": "1.0.0",
+    "copyright": "",
+    "comments": "网络探测工具"
+  },
+  "nsisType": "multiple",
+  "obfuscated": false,
+  "garbleargs": ""
+}

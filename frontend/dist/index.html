@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetProbe</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1 data-i18n="app.title">NetProbe</h1>
+                <p data-i18n="app.subtitle">网络探测工具</p>
+            </div>
+            <div class="header-right">
+                <div class="language-selector">
+                    <select id="language-select" onchange="changeLanguage(this.value)">
+                        <option value="zh-CN">中文</option>
+                        <option value="en-US">English</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-controls">
+            <button class="tab-scroll-btn" id="tab-scroll-left" onclick="scrollTabs('left')"
+                style="display: none;">◀</button>
+            <div class="tabs-container" id="tabs-container">
+                <div class="tab active" data-tab-id="tab-1" onclick="activateTab('tab-1')">
+                    <span class="tab-title" data-i18n="tabs.untitled"
+                        onclick="startRenameTab(event, 'tab-1')">未命名</span>
+                    <input type="text" class="tab-title-input" id="tab-title-input-tab-1"
+                        onblur="finishRenameTab('tab-1')" onkeypress="handleTabTitleKeyPress(event, 'tab-1')"
+                        style="display: none;">
+                    <span class="tab-close" onclick="closeTab(event, 'tab-1')">×</span>
+                </div>
+                <div class="new-tab" onclick="createNewTab()">+</div>
+            </div>
+            <button class="tab-scroll-btn" id="tab-scroll-right" onclick="scrollTabs('right')"
+                style="display: none;">▶</button>
+        </div>
+
+        <div class="tab-content active" id="tab-1">
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-group" style="flex: 0.8;">
+                        <label for="ip-tab-1" data-i18n="connection.ip">IP地址:</label>
+                        <input type="text" id="ip-tab-1" placeholder="127.0.0.1" value="127.0.0.1">
+                    </div>
+                    <div class="form-group" style="flex: 0.4;">
+                        <label for="protocol-tab-1" data-i18n="connection.protocol">协议:</label>
+                        <select id="protocol-tab-1">
+                            <option value="tcp">TCP</option>
+                            <option value="udp">UDP</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex: 0.4;">
+                        <label for="port-tab-1" data-i18n="connection.port">端口:</label>
+                        <input type="text" id="port-tab-1" placeholder="23" value="23">
+                    </div>
+                    <div class="form-group" style="flex: 0.8;">
+                        <label for="dataFormat-tab-1" data-i18n="connection.dataFormat">发送数据格式:</label>
+                        <select id="dataFormat-tab-1" onchange="updateDataPlaceholder('tab-1')">
+                            <option value="raw_string" selected data-i18n="formats.rawString">原始字符串</option>
+                            <option value="hex_comma" data-i18n="formats.hexComma">十六进制 (0x)</option>
+                            <option value="hex_slash" data-i18n="formats.hexSlash">十六进制 (\x)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputData-tab-1" data-i18n="connection.inputData">发送数据 (可选):</label>
+                    <textarea id="inputData-tab-1" placeholder="hello"></textarea>
+                    <div class="example" id="dataExample-tab-1" data-i18n="examples.rawString">直接输入原始字符串，如 hello</div>
+                </div>
+
+                <button class="btn" onclick="connectProbe('tab-1')" data-i18n="connection.connect">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        style="margin-right: 6px;">
+                        <path d="M5 12h14"></path>
+                        <path d="m12 5 7 7-7 7"></path>
+                    </svg>
+                    <span data-i18n="connection.connect">连接</span>
+                </button>
+            </div>
+
+            <div class="loading" id="loading-tab-1">
+                <div class="spinner"></div>
+                <div data-i18n="results.connecting">正在连接...</div>
+            </div>
+
+            <div class="result-section" id="results-tab-1" style="display: none;">
+                <div id="resultContent-tab-1"></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p data-i18n="footer.copyright">© 2025 NetProbe - outmansec</p>
+        </div>
+    </div>
+
+    <script src="wails/runtime/runtime.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
